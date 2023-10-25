@@ -5,7 +5,7 @@ import logger from './config/logger';
 
 const app = express();
 
-app.get('./', (req, res) => {
+app.get('/', (req, res) => {
   res.send('welcome from auth');
 });
 
