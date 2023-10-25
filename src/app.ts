@@ -2,12 +2,15 @@ import express, { NextFunction, Request, Response } from 'express';
 import { HttpError } from 'http-errors';
 
 import logger from './config/logger';
+import authRouter from './routes/auth.routes';
 
 const app = express();
 
 app.get('/', (req, res) => {
   res.send('welcome from auth');
 });
+
+app.use('/auth', authRouter);
 
 /*
     Whenever there is any error inside any route, it get caught in global express error handler.
