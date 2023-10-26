@@ -6,6 +6,7 @@ import logger from './config/logger';
 import authRouter from './routes/auth.routes';
 
 const app = express();
+app.use(express.json());
 
 app.get('/', (req, res) => {
   res.send('welcome from auth');

@@ -6,10 +6,27 @@
 */
 
 import request from 'supertest';
+import { DataSource } from 'typeorm';
 import app from '../../src/app';
+import { AppDataSource } from '../../src/config/data-source';
+import { truncateTables } from '../utils';
+import { User } from '../../src/entity/User';
 
 describe('POST /auth/register', () => {
   describe('All field provided', () => {
+    let connection: DataSource;
+
+    beforeAll(async () => {
+      connection = await AppDataSource.initialize();
+    });
+    beforeEach(async () => {
+      //truncate db before each test suite runs
+      await truncateTables(connection);
+    });
+    afterAll(async () => {
+      await connection.destroy();
+    });
+
     it('should return 201 status code', async () => {
       // Arrange
       const userData = {
@@ -38,6 +55,25 @@ describe('POST /auth/register', () => {
       expect(
         (response.headers as Record<string, string>)['content-type'],
       ).toEqual(expect.stringContaining('json'));
+    });
+
+    it('should persist data into db', async () => {
+      const userData = {
+        firstName: 'shourya',
+        lastName: 'kaushik',
+        email: 'shouryakaushik2223@gmail.com',
+        password: 'secret',
+      };
+
+      // Act
+      await request(app).post('/auth/register').send(userData);
+
+      // Assert
+      const userRepositary = connection.getRepository(User);
+      const users = await userRepositary.find();
+      expect(users).toHaveLength(1);
+      expect(users[0].firstName).toBe(userData.firstName);
+      expect(users[0].email).toBe(userData.email);
     });
   });
   describe('sad path', () => {});
