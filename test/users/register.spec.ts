@@ -134,7 +134,6 @@ describe('POST /auth/register', () => {
       };
 
       const response = await request(app).post('/auth/register').send(userData);
-      console.log(response.body);
       expect(response.statusCode).toBe(400);
     });
     it('should return 400 status code if firstName is missing', async () => {
@@ -203,7 +202,6 @@ describe('POST /auth/register', () => {
 
       expect(response.statusCode).toBe(400);
       const errObj = response.body;
-      console.log(errObj);
       expect(errObj.error[0].msg).toBe(
         'Password should be at least 7 chars long',
       );
