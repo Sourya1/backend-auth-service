@@ -13,21 +13,19 @@ import { User } from '../../src/entity/User';
 import { Roles } from '../../src/constants';
 
 describe('POST /auth/register', () => {
+  let connection: DataSource;
+  beforeAll(async () => {
+    connection = await AppDataSource.initialize();
+  });
+  beforeEach(async () => {
+    //drop and sync db before each test suite runs
+    await connection.dropDatabase();
+    await connection.synchronize();
+  });
+  afterAll(async () => {
+    await connection.destroy();
+  });
   describe('All field provided', () => {
-    let connection: DataSource;
-
-    beforeAll(async () => {
-      connection = await AppDataSource.initialize();
-    });
-    beforeEach(async () => {
-      //drop and sync db before each test suite runs
-      await connection.dropDatabase();
-      await connection.synchronize();
-    });
-    afterAll(async () => {
-      await connection.destroy();
-    });
-
     it('should return 201 status code', async () => {
       // Arrange
       const userData = {
@@ -125,5 +123,84 @@ describe('POST /auth/register', () => {
       expect(users).toHaveLength(1);
     });
   });
-  describe('sad path', () => {});
+  describe('sad path', () => {
+    it('should return 400 status code if email is missing or invalid email', async () => {
+      // Arrange
+      const userData = {
+        firstName: 'shourya',
+        lastName: 'kaushik',
+        email: '',
+        password: 'secret',
+      };
+
+      const response = await request(app).post('/auth/register').send(userData);
+      console.log(response.body);
+      expect(response.statusCode).toBe(400);
+    });
+    it('should return 400 status code if firstName is missing', async () => {
+      // Arrange
+      const userData = {
+        firstName: '',
+        lastName: 'kaushik',
+        email: 'shouryakaushik2223@gmail.com',
+        password: 'secret',
+      };
+
+      const response = await request(app).post('/auth/register').send(userData);
+      expect(response.statusCode).toBe(400);
+    });
+    it('should return 400 status code if last is missing', async () => {
+      // Arrange
+      const userData = {
+        firstName: 'shourya',
+        lastName: '',
+        email: 'shouryakaushik2223@gmail.com',
+        password: 'secret',
+      };
+
+      const response = await request(app).post('/auth/register').send(userData);
+      expect(response.statusCode).toBe(400);
+    });
+    it('should return 400 status code if password is missing', async () => {
+      // Arrange
+      const userData = {
+        firstName: 'shourya',
+        lastName: 'kaushik',
+        email: 'shouryakaushik2223@gmail.com',
+        password: '',
+      };
+
+      const response = await request(app).post('/auth/register').send(userData);
+      expect(response.statusCode).toBe(400);
+    });
+  });
+  describe('Fields are not in proper format', () => {
+    it('should trim the email field', async () => {
+      const userData = {
+        firstName: 'shourya',
+        lastName: 'kaushik',
+        email: ' shouryakaushik2223@gmail.com ',
+        password: 'secret',
+      };
+      await request(app).post('/auth/register').send(userData);
+      const userRepositary = connection.getRepository(User);
+      const users = await userRepositary.find();
+      const user = users[0];
+      expect(user.email).toBe('shouryakaushik2223@gmail.com');
+    });
+    // it('password should be six character long', async () => {
+    //   const userData = {
+    //     firstName: 'shourya',
+    //     lastName: 'kaushik',
+    //     email: ' shouryakaushik2223@gmail.com ',
+    //     password: 'secre',
+    //   };
+    //   await request(app).post('/auth/register').send(userData);
+    //   const response = await request(app).post('/auth/register').send(userData);
+
+    //   expect(response.statusCode).toBe(400);
+    //   const errObj = response.body.error[0];
+    //   expect(errObj.msg).toBe('Password should be at least 7 chars long');
+    // });
+  });
 });
