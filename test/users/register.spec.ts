@@ -188,19 +188,25 @@ describe('POST /auth/register', () => {
       const user = users[0];
       expect(user.email).toBe('shouryakaushik2223@gmail.com');
     });
-    // it('password should be six character long', async () => {
-    //   const userData = {
-    //     firstName: 'shourya',
-    //     lastName: 'kaushik',
-    //     email: ' shouryakaushik2223@gmail.com ',
-    //     password: 'secre',
-    //   };
-    //   await request(app).post('/auth/register').send(userData);
-    //   const response = await request(app).post('/auth/register').send(userData);
+    it('password should be six character long', async () => {
+      const userData = {
+        firstName: 'shourya',
+        lastName: 'kaushik',
+        email: ' shouryakaushik2223@gmail.com ',
+        password: 'secre',
+      };
+      await request(app).post('/auth/register').send(userData);
+      const response: {
+        body: { error: [{ msg: string }] };
+        statusCode: number;
+      } = await request(app).post('/auth/register').send(userData);
 
-    //   expect(response.statusCode).toBe(400);
-    //   const errObj = response.body.error[0];
-    //   expect(errObj.msg).toBe('Password should be at least 7 chars long');
-    // });
+      expect(response.statusCode).toBe(400);
+      const errObj = response.body;
+      console.log(errObj);
+      expect(errObj.error[0].msg).toBe(
+        'Password should be at least 7 chars long',
+      );
+    });
   });
 });
