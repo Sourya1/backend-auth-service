@@ -1,8 +1,13 @@
+import fs from 'fs';
+import path from 'path';
 import { NextFunction, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { Logger } from 'winston';
+import { sign, JwtPayload } from 'jsonwebtoken';
+
 import { UserService } from '../services/userService';
 import { ResgisterUserRequest } from '../types';
+import createHttpError from 'http-errors';
 
 export class AuthController {
   constructor(
@@ -31,6 +36,36 @@ export class AuthController {
       });
 
       this.logger.info('User has been register', { id: user.id });
+
+      let privateKey;
+      try {
+        privateKey = fs.readFileSync(
+          path.join(__dirname, '../../certs/private.pem'),
+        );
+      } catch (err) {
+        const error = createHttpError(500, 'Error while reading private key');
+        return next(error);
+      }
+
+      // Generate jwt token
+      const payload: JwtPayload = {
+        sub: String(user.id),
+        role: user.role,
+      };
+
+      const accessToken = sign(payload, privateKey, {
+        algorithm: 'RS256',
+        expiresIn: '1h',
+        issuer: 'auth-service',
+      });
+
+      res.cookie('accessToken', accessToken, {
+        domain: 'localhost',
+        sameSite: 'strict',
+        maxAge: 1000 * 60 * 60, //1h
+        httpOnly: true,
+      });
+
       res.status(201).json({ id: user.id });
     } catch (err) {
       return next(err);

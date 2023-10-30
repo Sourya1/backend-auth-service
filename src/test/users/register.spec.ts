@@ -7,10 +7,12 @@
 
 import request from 'supertest';
 import { DataSource } from 'typeorm';
-import app from '../../src/app';
-import { AppDataSource } from '../../src/config/data-source';
-import { User } from '../../src/entity/User';
-import { Roles } from '../../src/constants';
+import app from '../../app';
+import { AppDataSource } from '../../config/data-source';
+import { User } from '../../entity/User';
+import { Roles } from '../../constants';
+import { passwordValidateBody, Headers } from '../utils/types';
+import { isJwt } from '../utils';
 
 describe('POST /auth/register', () => {
   let connection: DataSource;
@@ -122,6 +124,34 @@ describe('POST /auth/register', () => {
       expect(response.statusCode).toBe(400);
       expect(users).toHaveLength(1);
     });
+    it('should return an access token and referesh token inside a cookie', async () => {
+      const userData = {
+        firstName: 'shourya',
+        lastName: 'kaushik',
+        email: 'shouryakaushik2223@gmail.com',
+        password: 'secret',
+      };
+
+      const response = await request(app).post('/auth/register').send(userData);
+      const cookies = (response.headers as Headers)['set-cookie'];
+
+      let accessToken = null,
+        refreshToken = null;
+      cookies.forEach((cookie) => {
+        if (cookie.startsWith('accessToken=')) {
+          accessToken = cookie.split(';')[0].split('=')[1];
+        }
+        if (cookie.startsWith('refreshToken=')) {
+          refreshToken = cookie.split(';')[0].split('=')[1];
+        }
+      });
+
+      expect(accessToken).not.toBeNull();
+      expect(refreshToken).not.toBeNull();
+
+      expect(isJwt(accessToken)).toBeTruthy();
+      expect(isJwt(refreshToken)).toBeTruthy();
+    });
   });
   describe('sad path', () => {
     it('should return 400 status code if email is missing or invalid email', async () => {
@@ -195,10 +225,9 @@ describe('POST /auth/register', () => {
         password: 'secre',
       };
       await request(app).post('/auth/register').send(userData);
-      const response: {
-        body: { error: [{ msg: string }] };
-        statusCode: number;
-      } = await request(app).post('/auth/register').send(userData);
+      const response: passwordValidateBody = await request(app)
+        .post('/auth/register')
+        .send(userData);
 
       expect(response.statusCode).toBe(400);
       const errObj = response.body;
