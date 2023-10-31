@@ -8,6 +8,7 @@ import { sign, JwtPayload } from 'jsonwebtoken';
 import { UserService } from '../services/userService';
 import { ResgisterUserRequest } from '../types';
 import createHttpError from 'http-errors';
+import { Config } from '../config';
 
 export class AuthController {
   constructor(
@@ -59,10 +60,23 @@ export class AuthController {
         issuer: 'auth-service',
       });
 
+      const refreshToken = sign(payload, Config.REFRESH_TOKEN_SECRET!, {
+        algorithm: 'HS256',
+        expiresIn: '1y',
+        issuer: 'auth-servcie',
+      });
+
       res.cookie('accessToken', accessToken, {
         domain: 'localhost',
         sameSite: 'strict',
         maxAge: 1000 * 60 * 60, //1h
+        httpOnly: true,
+      });
+
+      res.cookie('refreshToken', refreshToken, {
+        domain: 'localhost',
+        sameSite: 'strict',
+        maxAge: 1000 * 60 * 60 * 24 * 365, //1y
         httpOnly: true,
       });
 

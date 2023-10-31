@@ -1,23 +1,25 @@
-import crypto from 'crypto';
+import { generateKeyPair } from 'crypto';
 import fs from 'fs';
 
-try {
-  const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
+generateKeyPair(
+  'rsa',
+  {
     modulusLength: 2048,
-    publickeyEncoding: {
+    publicKeyEncoding: {
       type: 'pkcs1',
       format: 'pem',
     },
-    privatekeyEncoding: {
+    privateKeyEncoding: {
       type: 'pkcs1',
       format: 'pem',
     },
-  });
-
-  console.log('public', publicKey);
-  console.log('private', privateKey);
-  fs.writeFileSync('certs/private.pem', privateKey);
-  fs.writeFileSync('certs/public.pem', publicKey);
-} catch (err) {
-  console.error('error is', err);
-}
+    // Handle errors and use the generated key pair
+  },
+  (err, publicKey, privateKey) => {
+    if (err) {
+      console.error(err);
+    }
+    fs.writeFileSync('certs/private.pem', privateKey);
+    fs.writeFileSync('certs/public.pem', publicKey);
+  },
+);
