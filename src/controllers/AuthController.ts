@@ -5,8 +5,6 @@ import { JwtPayload } from 'jsonwebtoken';
 
 import { UserService } from '../services/userService';
 import { ResgisterUserRequest } from '../types';
-import { AppDataSource } from '../config/data-source';
-import { RefreshToken } from '../entity/RefreshToken';
 import { TokenService } from '../services/tokenService';
 
 export class AuthController {
@@ -45,14 +43,8 @@ export class AuthController {
       };
 
       const accessToken = this.tokenService.generateAccessToken(payload);
-
-      // Persist the refresh token
-      const MS_IN_YEAR = 1000 * 60 * 60 * 24 * 365;
-      const refreshtokenRepo = AppDataSource.getRepository(RefreshToken);
-      const refreshTokenInfo = await refreshtokenRepo.save({
-        user: user,
-        expiresAt: new Date(Date.now() + MS_IN_YEAR),
-      });
+      const refreshTokenInfo =
+        await this.tokenService.persistRefreshToken(user); // persit refresh token
 
       const refreshToken = this.tokenService.generateRefreshToken({
         ...payload,
