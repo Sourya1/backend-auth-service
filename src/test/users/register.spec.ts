@@ -13,6 +13,7 @@ import { User } from '../../entity/User';
 import { Roles } from '../../constants';
 import { passwordValidateBody, Headers } from '../utils/types';
 import { isJwt } from '../utils';
+import { RefreshToken } from '../../entity/RefreshToken';
 
 describe('POST /auth/register', () => {
   let connection: DataSource;
@@ -151,6 +152,29 @@ describe('POST /auth/register', () => {
 
       expect(isJwt(accessToken)).toBeTruthy();
       expect(isJwt(refreshToken)).toBeTruthy();
+    });
+    it('should store refresh token in db', async () => {
+      const userData = {
+        firstName: 'shourya',
+        lastName: 'kaushik',
+        email: 'shouryakaushik2223@gmail.com',
+        password: 'secret',
+      };
+
+      await request(app).post('/auth/register').send(userData);
+
+      // assert
+      const refreshTokenRepo = connection.getRepository(RefreshToken); // get refresh token table
+      const refreshToken = await refreshTokenRepo.find();
+      expect(refreshToken).toHaveLength(1);
+
+      // check if the token is belong to the user created
+      // const tokens = await refreshTokenRepo
+      //   .createQueryBuilder('refreshToken')
+      //   .where('refreshToken.userId = :userId', { userId: response.body.id })
+      //   .getMany();
+
+      // expect(tokens).toHaveLength(1);
     });
   });
   describe('sad path', () => {
