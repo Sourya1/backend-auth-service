@@ -1,5 +1,5 @@
 export type ErrorResponseFormat = {
-  body: { error: [{ msg: string }] };
+  body: { errors: [{ msg: string }] };
   statusCode: number;
 };
 

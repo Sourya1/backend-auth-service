@@ -255,7 +255,7 @@ describe('POST /auth/register', () => {
 
       expect(response.statusCode).toBe(400);
       const errObj = response.body;
-      expect(errObj.error[0].msg).toBe(
+      expect(errObj.errors[0].msg).toBe(
         'Password should be at least 7 chars long',
       );
     });

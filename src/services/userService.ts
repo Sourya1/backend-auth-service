@@ -35,4 +35,16 @@ export class UserService {
       throw error;
     }
   }
+
+  async findUserByEmail(email: string) {
+    try {
+      const isPresent = await this.userRepository.findOne({
+        where: { email: email },
+      });
+      return isPresent;
+    } catch (err) {
+      const error = createHttpError(500, 'Failed to query the database');
+      throw error;
+    }
+  }
 }
