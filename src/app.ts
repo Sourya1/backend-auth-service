@@ -13,7 +13,7 @@ app.use('/auth', authRouter);
 /*
     Whenever there is any error inside any route, it get caught in global express error handler.
     If there is async function then any error inside that function will not caught by gloabl express
-    middleware, so use GEEH we use next(error) inside async funtion inside any route
+    middleware, so to use GEEH we use next(error) inside async funtion inside any route
 */
 app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
   logger.error(err.message);

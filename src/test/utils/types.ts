@@ -1,4 +1,4 @@
-export type passwordValidateBody = {
+export type ErrorResponseFormat = {
   body: { error: [{ msg: string }] };
   statusCode: number;
 };

@@ -11,7 +11,7 @@ import app from '../../app';
 import { AppDataSource } from '../../config/data-source';
 import { User } from '../../entity/User';
 import { Roles } from '../../constants';
-import { passwordValidateBody, Headers } from '../utils/types';
+import { ErrorResponseFormat, Headers } from '../utils/types';
 import { isJwt } from '../utils';
 import { RefreshToken } from '../../entity/RefreshToken';
 
@@ -249,7 +249,7 @@ describe('POST /auth/register', () => {
         password: 'secre',
       };
       await request(app).post('/auth/register').send(userData);
-      const response: passwordValidateBody = await request(app)
+      const response: ErrorResponseFormat = await request(app)
         .post('/auth/register')
         .send(userData);
 
