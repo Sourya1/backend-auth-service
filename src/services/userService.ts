@@ -39,7 +39,19 @@ export class UserService {
   async findUserByEmail(email: string) {
     try {
       const isPresent = await this.userRepository.findOne({
-        where: { email: email },
+        where: { email },
+      });
+      return isPresent;
+    } catch (err) {
+      const error = createHttpError(500, 'Failed to query the database');
+      throw error;
+    }
+  }
+
+  async findUserById(id: number) {
+    try {
+      const isPresent = await this.userRepository.findOne({
+        where: { id },
       });
       return isPresent;
     } catch (err) {

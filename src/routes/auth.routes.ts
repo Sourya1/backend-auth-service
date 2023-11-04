@@ -10,6 +10,8 @@ import { TokenService } from '../services/tokenService';
 import { RefreshToken } from '../entity/RefreshToken';
 import loginValidator from '../validators/login-validator';
 import { CredentialService } from '../services/credentialsService';
+import authenticate from '../middlewares/authenticate';
+import { AuthRequest } from '../types';
 
 const router = express.Router();
 const userRepository = AppDataSource.getRepository(User);
@@ -28,16 +30,21 @@ router.post(
   '/register',
   registerValidator,
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  (req: Request, res: Response, next: NextFunction) =>
-    authController.register(req, res, next),
+  async (req: Request, res: Response, next: NextFunction) =>
+    await authController.register(req, res, next),
 );
 
 router.post(
   '/login',
   loginValidator,
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  (req: Request, res: Response, next: NextFunction) =>
-    authController.login(req, res, next),
+  async (req: Request, res: Response, next: NextFunction) =>
+    await authController.login(req, res, next),
 );
+
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
+router.get('/self', authenticate, async (req: Request, res: Response) => {
+  await authController.self(req as AuthRequest, res);
+});
 
 export default router;

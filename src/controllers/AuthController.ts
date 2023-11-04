@@ -5,7 +5,7 @@ import { Logger } from 'winston';
 import { JwtPayload } from 'jsonwebtoken';
 
 import { UserService } from '../services/userService';
-import { ResgisterUserRequest } from '../types';
+import { AuthRequest, ResgisterUserRequest } from '../types';
 import { TokenService } from '../services/tokenService';
 import createHttpError from 'http-errors';
 import { CredentialService } from '../services/credentialsService';
@@ -136,5 +136,10 @@ export class AuthController {
     } catch (err) {
       return next(err);
     }
+  }
+
+  async self(req: AuthRequest, res: Response) {
+    const user = await this.userService.findUserById(Number(req.auth.sub));
+    res.status(200).json({ ...user, password: undefined });
   }
 }
