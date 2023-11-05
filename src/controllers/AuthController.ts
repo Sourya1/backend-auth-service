@@ -223,4 +223,32 @@ export class AuthController {
       return next(err);
     }
   }
+
+  async logout(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      // get refresh token from cookies
+      const { refreshToken } = req.cookies as Record<string, string>;
+      if (!refreshToken) {
+        const error = createHttpError(400, 'Token is not present');
+        throw error;
+      }
+      const isRefreshTokenValid = verify(
+        refreshToken,
+        Config.REFRESH_TOKEN_SECRET!,
+      );
+      const { jti: refreshTokenId } = isRefreshTokenValid as JwtPayload;
+
+      // delete the refresh token
+      await this.tokenService.deleteRefreshToken(Number(refreshTokenId));
+
+      this.logger.info('User has been logged Out', { id: req.auth.sub });
+
+      // clear the cookies
+      res.clearCookie('accessToken');
+      res.clearCookie('refreshToken');
+      res.json({ status: 'success' });
+    } catch (err) {
+      return next(err);
+    }
+  }
 }

@@ -54,5 +54,14 @@ router.post(
     await authController.refreshToken(req, res, next);
   },
 );
+router.post(
+  '/logout',
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  authenticate,
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  async (req: Request, res: Response, next: NextFunction) => {
+    await authController.logout(req as AuthRequest, res, next);
+  },
+);
 
 export default router;
