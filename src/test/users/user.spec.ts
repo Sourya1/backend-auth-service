@@ -84,5 +84,24 @@ describe('GET auth/self', () => {
 
       expect(response.body).not.toHaveProperty('password');
     });
+    it('should 401 if token does not exit', async () => {
+      //Arrange
+      const userData = {
+        firstName: 'shourya',
+        lastName: 'kaushik',
+        email: 'shouryakaushik2223@gmail.com',
+        password: 'secret',
+      };
+
+      const userRepository = connection.getRepository(User); // Regsiter a user
+      await userRepository.save({
+        ...userData,
+        role: Roles.CUSTOMER,
+      });
+
+      const response = await request(app).get('/auth/self').send();
+
+      expect(response.statusCode).toBe(401);
+    });
   });
 });
