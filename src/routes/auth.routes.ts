@@ -47,4 +47,12 @@ router.get('/self', authenticate, async (req: Request, res: Response) => {
   await authController.self(req as AuthRequest, res);
 });
 
+router.post(
+  '/refreshToken',
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  async (req: Request, res: Response, next: NextFunction) => {
+    await authController.refreshToken(req, res, next);
+  },
+);
+
 export default router;

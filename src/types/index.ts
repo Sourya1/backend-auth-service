@@ -16,3 +16,7 @@ export interface AuthRequest extends Request {
     role: string;
   };
 }
+
+export interface IRefreshTokenPayload {
+  id: string;
+}
