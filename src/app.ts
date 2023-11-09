@@ -4,7 +4,8 @@ import { HttpError } from 'http-errors';
 import cookieParser from 'cookie-parser';
 
 import logger from './config/logger';
-import authRouter from './routes/auth.routes';
+import authRouter from './routes/auth';
+import tenentRouter from './routes/tenent';
 
 const app = express();
 app.use(express.static('public'));
@@ -12,6 +13,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use('/auth', authRouter);
+app.use('/tenents', tenentRouter);
 
 /*
     Whenever there is any error inside any route, it get caught in global express error handler.
