@@ -7,6 +7,8 @@ import { TenentController } from '../controllers/tenentController';
 import { Tenent } from '../entity/Tenent';
 import { TenentService } from '../services/TenentService';
 import authenticate from '../middlewares/authenticate';
+import canAccess from '../middlewares/canAccess';
+import { Roles } from '../constants';
 
 const tenentRouter = express.Router();
 const tenentRepository = AppDataSource.getRepository(Tenent);
@@ -17,6 +19,7 @@ tenentRouter.post(
   '/',
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   authenticate,
+  canAccess([Roles.ADMIN]),
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   async (req: Request, res: Response, next: NextFunction) => {
     await tenentController.create(req, res, next);
