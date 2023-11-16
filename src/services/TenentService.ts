@@ -17,4 +17,11 @@ export class TenentService {
       throw error;
     }
   }
+
+  async getTenents() {
+    return await this.tenentRepository.find();
+  }
+  async getTenent(tenentId: number) {
+    return await this.tenentRepository.findOne({ where: { id: tenentId } });
+  }
 }
