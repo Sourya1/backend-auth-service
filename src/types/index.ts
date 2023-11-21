@@ -27,10 +27,14 @@ export interface ITenent {
   address: string;
 }
 
-export interface TenentRequest extends Request {
+export interface ITenentRequest extends Request {
   body: ITenent;
 }
 
 export interface CreateUserRequest extends Request {
   body: UserData;
+}
+
+export interface IUpdatTenentReq extends Request {
+  body: ITenent;
 }
