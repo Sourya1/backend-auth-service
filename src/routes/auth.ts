@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import express, { NextFunction, Request, Response } from 'express';
 
 import { AuthController } from '../controllers/AuthController';
@@ -29,7 +30,6 @@ const authController = new AuthController(
 router.post(
   '/register',
   registerValidator,
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   async (req: Request, res: Response, next: NextFunction) =>
     await authController.register(req, res, next),
 );
@@ -37,28 +37,23 @@ router.post(
 router.post(
   '/login',
   loginValidator,
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   async (req: Request, res: Response, next: NextFunction) =>
     await authController.login(req, res, next),
 );
 
-// eslint-disable-next-line @typescript-eslint/no-misused-promises
 router.get('/self', authenticate, async (req: Request, res: Response) => {
   await authController.self(req as AuthRequest, res);
 });
 
 router.post(
   '/refreshToken',
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   async (req: Request, res: Response, next: NextFunction) => {
     await authController.refreshToken(req, res, next);
   },
 );
 router.post(
   '/logout',
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   authenticate,
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   async (req: Request, res: Response, next: NextFunction) => {
     await authController.logout(req as AuthRequest, res, next);
   },

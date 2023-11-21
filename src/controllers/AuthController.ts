@@ -13,6 +13,7 @@ import { Request } from 'express-jwt';
 import { Config } from '../config';
 import { RefreshToken } from '../entity/RefreshToken';
 import { AppDataSource } from '../config/data-source';
+import { Roles } from '../constants';
 
 export class AuthController {
   constructor(
@@ -40,6 +41,7 @@ export class AuthController {
         lastName,
         email,
         password,
+        role: Roles.CUSTOMER,
       });
 
       this.logger.info('User has been register', { id: user.id });
