@@ -100,7 +100,7 @@ describe('POST /tenents', () => {
         .post('/tenents')
         .set('Cookie', `accessToken=${managerToken}`)
         .send(tenentData);
-      expect(response.statusCode).toBe(401);
+      expect(response.statusCode).toBe(403);
 
       const tenentRepo = connection.getRepository(Tenent);
       const tenent = await tenentRepo.find();

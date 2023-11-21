@@ -38,3 +38,13 @@ export interface CreateUserRequest extends Request {
 export interface IUpdatTenentReq extends Request {
   body: ITenent;
 }
+
+export interface IUpdateUserReq extends Request {
+  body: LimitedUserData;
+}
+
+export interface LimitedUserData {
+  firstName: string;
+  lastName: string;
+  role: string;
+}
