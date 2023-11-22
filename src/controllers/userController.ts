@@ -1,5 +1,6 @@
 import { NextFunction, Response } from 'express';
 import { Request } from 'express-jwt';
+import { validationResult } from 'express-validator';
 import createHttpError from 'http-errors';
 import { Logger } from 'winston';
 import { Roles } from '../constants';
@@ -13,6 +14,12 @@ export class UserController {
   ) {}
   async create(req: CreateUserRequest, res: Response, next: NextFunction) {
     this.logger.info('Start => create');
+
+    const validate = validationResult(req);
+    if (!validate.isEmpty()) {
+      return res.status(400).json({ errors: validate.array() });
+    }
+
     const { firstName, lastName, email, password } = req.body;
     try {
       const user = await this.userService.create({
@@ -37,6 +44,10 @@ export class UserController {
 
     if (!Number.isNaN(Number(userId))) {
       return next(createHttpError(400, 'Invalid url param.'));
+    }
+    const result = validationResult(req);
+    if (!result.isEmpty()) {
+      return res.status(400).json({ errors: result.array() });
     }
 
     try {

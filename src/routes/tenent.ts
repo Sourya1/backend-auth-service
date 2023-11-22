@@ -10,7 +10,7 @@ import { TenentService } from '../services/TenentService';
 import authenticate from '../middlewares/authenticate';
 import canAccess from '../middlewares/canAccess';
 import { Roles } from '../constants';
-import updateTenentValidation from '../validators/tenents/create&update';
+import tenentValidation from '../validators/tenents/create&update';
 
 const tenentRouter = express.Router();
 const tenentRepository = AppDataSource.getRepository(Tenent);
@@ -22,7 +22,7 @@ tenentRouter.use(canAccess([Roles.ADMIN]));
 
 tenentRouter.post(
   '/',
-  updateTenentValidation,
+  tenentValidation,
   async (req: Request, res: Response, next: NextFunction) => {
     await tenentController.create(req, res, next);
   },
@@ -41,7 +41,7 @@ tenentRouter
     await tenentController.getTenent(req, res, next);
   })
   .patch(
-    updateTenentValidation,
+    tenentValidation,
     async (req: Request, res: Response, next: NextFunction) => {
       await tenentController.updateTenent(req, res, next);
     },
