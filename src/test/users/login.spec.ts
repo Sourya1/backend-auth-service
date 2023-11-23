@@ -55,8 +55,8 @@ describe('POST /auth/login', () => {
       const response = await request(app).post('/auth/login').send(userInfo);
       const cookies = (response.headers as Headers)['set-cookie'];
 
-      let accessToken = null,
-        refreshToken = null;
+      let accessToken = '',
+        refreshToken = '';
       cookies.forEach((cookie: string) => {
         if (cookie.startsWith('accessToken=')) {
           accessToken = cookie.split(';')[0].split('=')[1];

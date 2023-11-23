@@ -15,7 +15,7 @@ import { Tenent } from '../../entity/Tenent';
 import { Roles } from '../../constants';
 import { ErrorResponseFormat } from '../utils/types';
 
-describe.skip('GET /tenents', () => {
+describe('GET /tenents', () => {
   let connection: DataSource;
   let jwks: ReturnType<typeof createJWKMocks>;
   let adminToken: string;

@@ -136,8 +136,8 @@ describe('POST /auth/register', () => {
       const response = await request(app).post('/auth/register').send(userData);
       const cookies = (response.headers as Headers)['set-cookie'];
 
-      let accessToken = null,
-        refreshToken = null;
+      let accessToken = '',
+        refreshToken = '';
       cookies.forEach((cookie) => {
         if (cookie.startsWith('accessToken=')) {
           accessToken = cookie.split(';')[0].split('=')[1];
