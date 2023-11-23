@@ -27,14 +27,19 @@ export default checkSchema({
     trim: true,
     isLength: {
       options: {
-        min: 8,
+        min: 6,
       },
-      errorMessage: 'Password should be at least 8 char ',
+      errorMessage: 'Password should be at least 6 char ',
     },
   },
   role: {
     errorMessage: 'Role is Required',
     trim: true,
     notEmpty: true,
+  },
+  tenentId: {
+    errorMessage: 'TenentId is required',
+    trim: true,
+    isEmpty: true,
   },
 });

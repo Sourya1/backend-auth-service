@@ -13,17 +13,12 @@ import request from 'supertest';
 import createJWKMocks from 'mock-jwks';
 import { User } from '../../entity/User';
 import { Roles } from '../../constants';
+import { Tenent } from '../../entity/Tenent';
 
 describe('POST /users', () => {
   let connection: DataSource;
   let jwks: ReturnType<typeof createJWKMocks>;
-  const userData = {
-    firstName: 'shourya',
-    lastName: 'kaushik',
-    email: 'shouryakaushik2223@gmail.com',
-    password: 'secret',
-    tenent: 1,
-  };
+
   beforeAll(async () => {
     connection = await AppDataSource.initialize();
     jwks = createJWKMocks('http://localhost:5501');
@@ -49,6 +44,19 @@ describe('POST /users', () => {
         sub: '1',
         role: Roles.ADMIN,
       });
+      const tenentRepo = connection.getRepository(Tenent);
+      const tenent = await tenentRepo.save({
+        name: 'New tenent',
+        address: 'My tenent address',
+      });
+      const userData = {
+        firstName: 'shourya',
+        lastName: 'kaushik',
+        email: 'shouryakaushik2223@gmail.com',
+        password: 'secret',
+        role: Roles.MANAGER,
+        tenent: tenent.id,
+      };
 
       const response = await request(app)
         .post('/users')
@@ -68,6 +76,19 @@ describe('POST /users', () => {
         sub: '1',
         role: Roles.ADMIN,
       });
+      const tenentRepo = connection.getRepository(Tenent);
+      const tenent = await tenentRepo.save({
+        name: 'New tenent',
+        address: 'My tenent address',
+      });
+      const userData = {
+        firstName: 'shourya',
+        lastName: 'kaushik',
+        email: 'shouryakaushik2223@gmail.com',
+        password: 'secret',
+        role: Roles.MANAGER,
+        tenent: tenent.id,
+      };
 
       const response = await request(app)
         .post('/users')
@@ -80,6 +101,33 @@ describe('POST /users', () => {
       expect(user).toHaveLength(1);
       expect(user[0].role).toBe(Roles.MANAGER);
       expect(response.statusCode).toBe(201);
+    });
+    it('should return 403 if non admin user tries to create a user', async () => {
+      const nonAdminToken = jwks.token({
+        sub: '1',
+        role: Roles.MANAGER,
+      });
+
+      const userData = {
+        firstName: 'shourya',
+        lastName: 'kaushik',
+        email: 'shouryakaushik2223@gmail.com',
+        password: 'secret',
+        tenent: 1,
+      };
+
+      // Add token to cookie
+      const response = await request(app)
+        .post('/users')
+        .set('Cookie', [`accessToken=${nonAdminToken}`])
+        .send(userData);
+
+      expect(response.statusCode).toBe(403);
+
+      const userRepository = connection.getRepository(User);
+      const users = await userRepository.find();
+
+      expect(users).toHaveLength(0);
     });
   });
 });

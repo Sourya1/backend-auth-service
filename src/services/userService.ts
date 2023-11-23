@@ -7,7 +7,14 @@ import { LimitedUserData, UserData } from '../types';
 
 export class UserService {
   constructor(private userRepository: Repository<User>) {}
-  async create({ firstName, lastName, email, password, role }: UserData) {
+  async create({
+    firstName,
+    lastName,
+    email,
+    password,
+    role,
+    tenantId,
+  }: UserData) {
     const isEmailPresent = await this.userRepository.findOne({
       where: { email: email },
     });
@@ -25,6 +32,7 @@ export class UserService {
         email,
         password: hashPassword,
         role,
+        tenant: tenantId ? { id: tenantId } : undefined,
       });
     } catch (err) {
       const error = createHttpError(

@@ -20,7 +20,7 @@ export class UserController {
       return res.status(400).json({ errors: validate.array() });
     }
 
-    const { firstName, lastName, email, password } = req.body;
+    const { firstName, lastName, email, password, tenantId } = req.body;
     try {
       const user = await this.userService.create({
         firstName,
@@ -28,6 +28,7 @@ export class UserController {
         email,
         password,
         role: Roles.MANAGER,
+        tenantId,
       });
 
       this.logger.info(`A new user is created:${(user.id, firstName)}`);
