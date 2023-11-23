@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=dev nodemon src/server.ts",
+    "build": "tsc",
     "format:check": "prettier . --check",
     "format:fix": "prettier . --write",
     "lint": "eslint .",
@@ -12,7 +13,8 @@
     "prepare": "husky install",
     "test": "jest",
     "migration:generate": "typeorm-ts-node-commonjs migration:generate",
-    "migration:run": "typeorm-ts-node-commonjs migration:run"
+    "migration:run": "typeorm-ts-node-commonjs migration:run",
+    "migration:create": "typeorm-ts-node-commonjs migration:create"
   },
   "author": "Sourya kaushik",
   "license": "ISC",
