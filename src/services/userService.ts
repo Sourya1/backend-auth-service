@@ -3,11 +3,18 @@ import bcrypt from 'bcrypt';
 
 import { Repository } from 'typeorm';
 import { User } from '../entity/User';
-import { UserData } from '../types';
+import { LimitedUserData, UserData } from '../types';
 
 export class UserService {
   constructor(private userRepository: Repository<User>) {}
-  async create({ firstName, lastName, email, password, role }: UserData) {
+  async create({
+    firstName,
+    lastName,
+    email,
+    password,
+    role,
+    tenantId,
+  }: UserData) {
     const isEmailPresent = await this.userRepository.findOne({
       where: { email: email },
     });
@@ -25,6 +32,7 @@ export class UserService {
         email,
         password: hashPassword,
         role,
+        tenant: tenantId ? { id: tenantId } : undefined,
       });
     } catch (err) {
       const error = createHttpError(
@@ -35,10 +43,11 @@ export class UserService {
     }
   }
 
-  async findUserByEmail(email: string) {
+  async findUserByEmailPassword(email: string) {
     try {
       const isPresent = await this.userRepository.findOne({
         where: { email },
+        select: ['id', 'firstName', 'lastName', 'email', 'role', 'password'],
       });
       return isPresent;
     } catch (err) {
@@ -57,5 +66,33 @@ export class UserService {
       const error = createHttpError(500, 'Failed to query the database');
       throw error;
     }
+  }
+
+  async update(userId: number, { firstName, lastName, role }: LimitedUserData) {
+    try {
+      return await this.userRepository.update(userId, {
+        firstName,
+        lastName,
+        role,
+      });
+    } catch (err) {
+      const error = createHttpError(
+        500,
+        'Failed to update the user in the database',
+      );
+      throw error;
+    }
+  }
+
+  async getAll() {
+    return await this.userRepository.find();
+  }
+
+  async getOne(userId: number) {
+    return await this.userRepository.findOne({ where: { id: userId } });
+  }
+
+  async delete(userId: number) {
+    return await this.userRepository.delete(userId);
   }
 }

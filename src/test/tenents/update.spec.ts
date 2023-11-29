@@ -11,11 +11,11 @@ import { AppDataSource } from '../../config/data-source';
 import app from '../../app';
 import createJWKMocks from 'mock-jwks';
 import request from 'supertest';
-import { Tenent } from '../../entity/Tenent';
 import { Roles } from '../../constants';
+import { Tenent } from '../../entity/Tenent';
 import { ErrorResponseFormat } from '../utils/types';
 
-describe('GET /tenents', () => {
+describe('Patch /tenents/:tenentId', () => {
   let connection: DataSource;
   let jwks: ReturnType<typeof createJWKMocks>;
   let adminToken: string;
@@ -52,37 +52,37 @@ describe('GET /tenents', () => {
       const tenent = await tenentRepository.save(tenentData);
 
       const response = await request(app)
-        .get(`/tenents/${tenent.id}`)
+        .patch(`/tenents/${tenent.id}`)
         .set('Cookie', `accessToken=${adminToken}`)
-        .send();
+        .send(tenentData);
 
       expect(response.statusCode).toBe(200);
     });
-    it('should return 200 status code with msg if tenent is not found', async () => {
-      const tenentId = '3';
-      const response: { statusCode: number; body: { msg: string } } =
-        await request(app)
-          .get(`/tenents/${tenentId}`)
-          .set('Cookie', `accessToken=${adminToken}`)
-          .send();
-
-      expect(response.statusCode).toBe(200);
-      expect(response.body.msg).toBe(`No tennet exist with id ${tenentId}`);
-    });
-    it('should throw an error if tenentId is not a valid tenentId', async () => {
-      const tenentId = 'RandomId';
-
-      const response: ErrorResponseFormat = await request(app)
-        .get(`/tenents/${tenentId}`)
+    it('should return 400 status code if tenent id is not valid number', async () => {
+      const tenentData = {
+        name: 'New tenent',
+        address: 'My tenent address',
+      };
+      const response = await request(app)
+        .patch(`/tenents/InvalidId`)
         .set('Cookie', `accessToken=${adminToken}`)
-        .send();
+        .send(tenentData);
 
       expect(response.statusCode).toBe(400);
-      expect(response.body.errors[0].msg).toBe('Invalid url param.');
     });
-    it('should return 401 if user is not authenticated', async () => {
-      const response = await request(app).get('/tenents/1234').send();
-      expect(response.statusCode).toBe(401);
+    it('should return 400 status code if tenent id is not present in db', async () => {
+      const tenentData = {
+        name: 'New tenent',
+        address: 'My tenent address',
+      };
+      const response: ErrorResponseFormat = await request(app)
+        .patch(`/tenents/${1}`)
+        .set('Cookie', `accessToken=${adminToken}`)
+        .send(tenentData);
+
+      expect(response.statusCode).toBe(400);
+      const errObj = response.body;
+      expect(errObj.errors[0].msg).toBe('No tenent exist with given id');
     });
     it('should return 403 if user is not admin role', async () => {
       const managerToken = jwks.token({
@@ -91,10 +91,41 @@ describe('GET /tenents', () => {
       });
 
       const response = await request(app)
-        .get('/tenents/1234')
+        .patch('/tenents/1234')
         .set('Cookie', `accessToken=${managerToken}`)
         .send();
       expect(response.statusCode).toBe(403);
+    });
+  });
+  describe('Missing fields', () => {
+    it('should return 400 if name is missing in body', async () => {
+      const tenentData = {
+        address: 'My tenent address',
+      };
+
+      const response: ErrorResponseFormat = await request(app)
+        .patch(`/tenents/${123}`)
+        .set('Cookie', `accessToken=${adminToken}`)
+        .send(tenentData);
+
+      expect(response.statusCode).toBe(400);
+      const errObj = response.body;
+      expect(errObj.errors[0].msg).toBe('name is a required');
+    });
+    it('should return 400 if name proerty length is less than 5 char', async () => {
+      const tenentData = {
+        name: 'my',
+        address: 'My tenent address',
+      };
+
+      const response: ErrorResponseFormat = await request(app)
+        .patch(`/tenents/${123}`)
+        .set('Cookie', `accessToken=${adminToken}`)
+        .send(tenentData);
+
+      expect(response.statusCode).toBe(400);
+      const errObj = response.body;
+      expect(errObj.errors[0].msg).toBe('Name should be 5 char long');
     });
   });
 });

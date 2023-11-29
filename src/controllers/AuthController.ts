@@ -92,7 +92,7 @@ export class AuthController {
 
     try {
       // check if email exist in db
-      const isUserExist = await this.userService.findUserByEmail(email);
+      const isUserExist = await this.userService.findUserByEmailPassword(email);
       if (!isUserExist) {
         const error = createHttpError(400, 'Email and password does not exist');
         next(error);

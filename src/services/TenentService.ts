@@ -24,4 +24,12 @@ export class TenentService {
   async getTenent(tenentId: number) {
     return await this.tenentRepository.findOne({ where: { id: tenentId } });
   }
+
+  async updateTenent(tenentId: number, tenentData: ITenent) {
+    return await this.tenentRepository.update(tenentId, tenentData);
+  }
+
+  async deleteById(tenentId: number) {
+    return await this.tenentRepository.delete(tenentId);
+  }
 }
