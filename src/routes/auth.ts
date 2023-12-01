@@ -1,5 +1,9 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
-import express, { NextFunction, Request, Response } from 'express';
+import express, {
+  NextFunction,
+  Request,
+  RequestHandler,
+  Response,
+} from 'express';
 
 import { AuthController } from '../controllers/AuthController';
 import { UserService } from '../services/userService';
@@ -30,33 +34,39 @@ const authController = new AuthController(
 router.post(
   '/register',
   registerValidator,
-  async (req: Request, res: Response, next: NextFunction) =>
-    await authController.register(req, res, next),
+  (async (req: Request, res: Response, next: NextFunction) =>
+    await authController.register(req, res, next)) as RequestHandler,
 );
 
 router.post(
   '/login',
   loginValidator,
-  async (req: Request, res: Response, next: NextFunction) =>
-    await authController.login(req, res, next),
+  (async (req: Request, res: Response, next: NextFunction) =>
+    await authController.login(req, res, next)) as RequestHandler,
 );
 
-router.get('/self', authenticate, async (req: Request, res: Response) => {
-  await authController.self(req as AuthRequest, res);
-});
-
-router.post(
-  '/refreshToken',
-  async (req: Request, res: Response, next: NextFunction) => {
-    await authController.refreshToken(req, res, next);
-  },
+router.get(
+  '/self',
+  authenticate as RequestHandler,
+  (async (req: Request, res: Response) => {
+    await authController.self(req as AuthRequest, res);
+  }) as RequestHandler,
 );
+
+router.post('/refreshToken', (async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  await authController.refreshToken(req, res, next);
+}) as RequestHandler);
+
 router.post(
   '/logout',
-  authenticate,
-  async (req: Request, res: Response, next: NextFunction) => {
+  authenticate as RequestHandler,
+  (async (req: Request, res: Response, next: NextFunction) => {
     await authController.logout(req as AuthRequest, res, next);
-  },
+  }) as RequestHandler,
 );
 
 export default router;
