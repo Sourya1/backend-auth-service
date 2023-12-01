@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
-import express, { NextFunction, Response } from 'express';
+import express, { NextFunction, RequestHandler, Response } from 'express';
 import { Request } from 'express-jwt';
 import { AppDataSource } from '../config/data-source';
 import logger from '../config/logger';
@@ -17,37 +16,39 @@ const tenentRepository = AppDataSource.getRepository(Tenent);
 const tenentService = new TenentService(tenentRepository);
 const tenentController = new TenentController(tenentService, logger);
 
-tenentRouter.use(authenticate);
+tenentRouter.use(authenticate as RequestHandler);
 tenentRouter.use(canAccess([Roles.ADMIN]));
 
-tenentRouter.post(
-  '/',
-  tenentValidation,
-  async (req: Request, res: Response, next: NextFunction) => {
-    await tenentController.create(req, res, next);
-  },
-);
+tenentRouter.post('/', tenentValidation, (async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  await tenentController.create(req, res, next);
+}) as RequestHandler);
 
-tenentRouter.get(
-  '/',
-  async (req: Request, res: Response, next: NextFunction) => {
-    await tenentController.getTenents(req, res, next);
-  },
-);
+tenentRouter.get('/', (async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  await tenentController.getTenents(req, res, next);
+}) as RequestHandler);
 
 tenentRouter
   .route('/:tenentId')
-  .get(async (req: Request, res: Response, next: NextFunction) => {
+  .get((async (req: Request, res: Response, next: NextFunction) => {
     await tenentController.getTenent(req, res, next);
-  })
-  .patch(
-    tenentValidation,
-    async (req: Request, res: Response, next: NextFunction) => {
-      await tenentController.updateTenent(req, res, next);
-    },
-  )
-  .delete(async (req: Request, res: Response, next: NextFunction) => {
+  }) as RequestHandler)
+  .patch(tenentValidation, (async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    await tenentController.updateTenent(req, res, next);
+  }) as RequestHandler)
+  .delete((async (req: Request, res: Response, next: NextFunction) => {
     await tenentController.deleteTenent(req, res, next);
-  });
+  }) as RequestHandler);
 
 export default tenentRouter;

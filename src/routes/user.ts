@@ -1,5 +1,9 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
-import express, { NextFunction, Request, Response } from 'express';
+import express, {
+  NextFunction,
+  Request,
+  RequestHandler,
+  Response,
+} from 'express';
 import { Roles } from '../constants';
 
 import authenticate from '../middlewares/authenticate';
@@ -17,34 +21,39 @@ const userReso = AppDataSource.getRepository(User);
 const userService = new UserService(userReso);
 const userController = new UserController(userService, logger);
 
-userRouter.use(authenticate);
+userRouter.use(authenticate as RequestHandler);
 userRouter.use(canAccess([Roles.ADMIN]));
 
-userRouter.post(
-  '/',
-  createUserValidation,
-  async (req: Request, res: Response, next: NextFunction) => {
-    await userController.create(req, res, next);
-  },
-);
+userRouter.post('/', createUserValidation, (async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  await userController.create(req, res, next);
+}) as RequestHandler);
 
-userRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
+userRouter.get('/', (async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   await userController.getAll(req, res, next);
-});
+}) as RequestHandler);
 
 userRouter
   .route('/:userId')
-  .patch(
-    updateUserValidation,
-    async (req: Request, res: Response, next: NextFunction) => {
-      await userController.update(req, res, next);
-    },
-  )
-  .get(async (req: Request, res: Response, next: NextFunction) => {
+  .patch(updateUserValidation, (async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    await userController.update(req, res, next);
+  }) as RequestHandler)
+  .get((async (req: Request, res: Response, next: NextFunction) => {
     await userController.getOne(req, res, next);
-  })
-  .delete(async (req: Request, res: Response, next: NextFunction) => {
+  }) as RequestHandler)
+  .delete((async (req: Request, res: Response, next: NextFunction) => {
     await userController.delete(req, res, next);
-  });
+  }) as RequestHandler);
 
 export default userRouter;
